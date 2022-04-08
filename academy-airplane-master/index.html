@@ -1,0 +1,107 @@
+<html>
+
+<body>
+	<div id='background' style=' background-image: url("ocean0.jpg"); width:559px; height:586px;'>
+		<div id='character'
+			style='position:absolute; left: 240; top: 500; background-image: url("player0.png"); width:59px; height:75px;'>
+		</div>
+
+		<div id='missile'
+			style='position:absolute; background-image: url("missile.png"); width:30px; height:35px; display: none;'>
+		</div>
+
+		<div id='enemy0'
+			style='position:absolute; left: 100; top: 0; background-image: url("enemy0.png"); width:59px; height:75px;'>
+		</div>
+		<div id='enemy1'
+			style='position:absolute; left: 100; top: 200; background-image: url("enemy0.png"); width:59px; height:75px;'>
+		</div>
+		<div id='enemy2'
+			style='position:absolute; left: 250; top: 100; background-image: url("enemy0.png"); width:59px; height:75px;'>
+		</div>
+		<div id='enemy3'
+			style='position:absolute; left: 400; top: 200; background-image: url("enemy0.png"); width:59px; height:75px;'>
+		</div>
+		<div id='enemy4'
+			style='position:absolute; left: 400; top: 0; background-image: url("enemy0.png"); width:59px; height:75px;'>
+		</div>
+
+	</div>
+
+	<script type="text/javascript">
+		var leftValue = 240;
+		var topValue = 500;
+		var walkValue = 1;
+		var counter = 0;
+
+
+		var rand = Math.floor(Math.random() * 3);
+		var rand2 = Math.floor(Math.random() * 2);
+
+		document.getElementById("background").style.backgroundImage = "url('ocean" + rand + ".jpg')";
+		document.getElementById("character").style.backgroundImage = "url('player" + rand2 + ".png')";
+		for (var i = 0; i <= 4; i++) {
+			document.getElementById("enemy" + i).style.backgroundImage = "url('enemy" + rand2 + ".png')";
+		}
+
+		document.onkeydown = function (e) {
+			console.log(e);
+
+			if (walkValue == 1) {
+				walkValue = 2;
+			}
+			else if (walkValue == 2) {
+				walkValue = 1;
+			}
+
+
+			if (e.keyCode == 32) {
+				document.getElementById("missile").style.top = topValue - 35;
+				document.getElementById("missile").style.left = leftValue + 20;
+				document.getElementById("missile").style.display = "block";
+				counter++;
+				displayMissile(counter);
+			}
+
+			function displayMissile(num) {
+				var div = document.createElement('div');
+				div.id = 'missile' + num;
+				div.style.backgroundImage = "url('missile.png')";
+				document.body.appendChild(div);
+			}
+
+			if (e.keyCode == 37) {
+				// Left
+				if (leftValue >= 0) {
+					leftValue = leftValue - 5;
+					document.getElementById("character").style.left = leftValue + "px";
+				}
+			}
+			else if (e.keyCode == 39) {
+				// Right
+				if (leftValue <= 500) {
+					leftValue = leftValue + 5;
+					document.getElementById("character").style.left = leftValue + "px";
+
+				}
+			}
+			else if (e.keyCode == 38) {
+				// Top
+				if (topValue >= 360) {
+					topValue = topValue - 5;
+					document.getElementById("character").style.top = topValue + "px";
+				}
+			}
+			else if (e.keyCode == 40) {
+				// Bottom
+				if (topValue <= 500) {
+					topValue = topValue + 5;
+					document.getElementById("character").style.top = topValue + "px";
+
+				}
+			}
+		}
+	</script>
+</body>
+
+</html>
