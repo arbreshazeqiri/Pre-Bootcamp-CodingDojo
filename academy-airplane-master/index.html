@@ -5,11 +5,9 @@
 		<div id='character'
 			style='position:absolute; left: 240; top: 500; background-image: url("player0.png"); width:70px; height:75px;'>
 		</div>
-
-		<div id='missile'
-			style='position:absolute; background-image: url("missile.png"); width:30px; height:35px; display: none;'>
+		<div id='missiles'
+			style='position:absolute;  width:559px; height:586px;'>
 		</div>
-
 		<div id='enemy0'
 			style='position:absolute; left: 80; top: 0; background-image: url("enemy0.png"); width:70px; height:75px;'>
 		</div>
@@ -25,6 +23,9 @@
 		<div id='enemy4'
 			style='position:absolute; left: 400; top: 0; background-image: url("enemy0.png"); width:70px; height:75px;'>
 		</div>
+		<div id='gameover'
+			style='position:absolute; left: 180; top: 180; background-image: url("gameover.png"); width:200px; height:200px; display: none;'>
+		</div>
 
 	</div>
 
@@ -34,14 +35,33 @@
 		var walkValue = 1;
 		var counter = 0;
 
+		var enemytopValue = [0, 200, 100, 200, 0];
+		var missiletopValue = [];
+
+		gameLoop();
 
 		var rand = Math.floor(Math.random() * 3);
 		var rand2 = Math.floor(Math.random() * 2);
+
+		var missileColor = []; 
+		function generateMissileColor(){
+		for(var i=0; i<=2; i++){
+			missileColor[i] = Math.floor(Math.random() * 255);
+		}
+	}
 
 		document.getElementById("background").style.backgroundImage = "url('ocean" + rand + ".jpg')";
 		document.getElementById("character").style.backgroundImage = "url('player" + rand2 + ".png')";
 		for (var i = 0; i <= 4; i++) {
 			document.getElementById("enemy" + i).style.backgroundImage = "url('enemy" + rand2 + ".png')";
+		}
+
+		var content = "";
+		function displayMissile() {
+			generateMissileColor();
+			missiletopValue[counter] = (topValue-35);
+			content += "<div id='missile"+counter+"' style='position: absolute;  height: 20px; width:10px; background-color: rgb(" + missileColor[0] + "," + missileColor[1] + "," + missileColor[2]+"); left: "+(leftValue+30)+"px; top: "+missiletopValue[counter]+"px;'></div>";
+			document.getElementById("missiles").innerHTML = content;
 		}
 
 		document.onkeydown = function (e) {
@@ -56,18 +76,8 @@
 
 
 			if (e.keyCode == 32) {
-				document.getElementById("missile").style.top = topValue - 35;
-				document.getElementById("missile").style.left = leftValue + 20;
-				document.getElementById("missile").style.display = "block";
+				displayMissile();
 				counter++;
-				displayMissile(counter);
-			}
-
-			function displayMissile(num) {
-				var div = document.createElement('div');
-				div.id = 'missile' + num;
-				div.style.backgroundImage = "url('missile.png')";
-				document.body.appendChild(div);
 			}
 
 			if (e.keyCode == 37) {
@@ -101,6 +111,45 @@
 				}
 			}
 		}
+
+		function moveEnemies() {
+			for (var i = 0; i <= 4; i++) {
+				if (enemytopValue[i] !== 500) {
+					enemytopValue[i] = enemytopValue[i] + 2;
+				}
+				else {
+					document.getElementById("enemy" + i).style.display = "none";
+					document.getElementById("gameover").style.display = "block";
+				}
+			}
+			for (var i = 0; i <= 4; i++) {
+				document.getElementById("enemy" + i).style.top = enemytopValue[i] + "px";
+			}
+		}
+
+		function moveMissiles() {
+			if (counter !== 0) {
+				for (var i = 0; i <= counter; i++) {
+					if (missiletopValue[i] !== 0) {
+						missiletopValue[i] = missiletopValue[i] - 10;
+					}
+					else {
+						document.getElementById("missile" + i).style.display = "none";
+					}
+				}
+				for (var i = 0; i <= counter; i++) {
+					document.getElementById("missile" + i).style.top = missiletopValue[i] + "px";
+				}
+			}
+		}
+
+		function gameLoop() {
+			setTimeout(gameLoop, 50);
+		 	moveEnemies();
+			moveMissiles();
+		}
+
+
 	</script>
 </body>
 
