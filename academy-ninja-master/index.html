@@ -1,15 +1,82 @@
 <html>
 
-<body>
-	<div id='background' style='border-color:aqua;'>
+<body style="margin:0;">
+	<div id='background'
+		style='position:absolute; display:block; background-color:rgb(61, 58, 54); width:542px; height:542px;'>
 		<div id='character'
-			style='position:absolute;  background-image: url("img/down1.png"); width:59px; height:86px;' >
+			style='position:absolute; top:32; left:32; z-index: 9999; background-image: url("images/ninja.gif"); width:32px; height:32px;'>
+		</div>
+		<div id='blocks' style='position:absolute;  width:542px; height:542px;'>
 		</div>
 	</div>
+
 	<script type="text/javascript">
-		var leftValue = 0;
-		var topValue = 0;
-		var walkValue = 1;
+		var leftValue = 32;
+		var topValue = 32;
+		var walkValue = 0;
+		var divCounter = 0;
+		var lives = 3;
+
+		var blockTop = [];
+		var blockLeft = [];
+
+		var foodLeft = [];
+		var foodTop = [];
+		var foodDivId = [];
+		var food = foodLeft.length;
+		var score = 0;
+		var rand2 = Math.floor(Math.random() * 3);
+
+		drawMap();
+		drawGhosts();
+
+		function drawMap() {
+			var content = "";
+			for (var j = 1; j <= 15; j++) {
+				for (var i = 1; i <= 15; i++) {
+					var rand = Math.floor(Math.random() * 10); //1/10 shansat me dal bllok
+					if (rand !== 9) {
+						if (rand !== 5) {
+							if (rand !== 3) {
+								content += "<div id='block" + (divCounter) + "' style='position: absolute;  height: 32px; width:32px; background-color:black;left: "
+									+ (i * 32) + "px; top: " + (j * 32) + "px;'></div>";
+								document.getElementById("blocks").innerHTML = content;
+								divCounter++;
+							}
+							else {
+								content += "<div id='block" + (divCounter) + "' style='position: absolute;  height: 32px; width:32px; background-color:black; background-image: url(\"images/sushi.png\");left: "
+									+ (i * 32) + "px; top: " + (j * 32) + "px;'></div>";
+								document.getElementById("blocks").innerHTML = content;
+								foodTop.push(j * 32);
+								foodLeft.push(i * 32);
+								foodDivId.push("block" + divCounter);
+								food++;
+								divCounter++;
+							}
+						}
+						else {
+							content += "<div id='block" + (divCounter) + "' style='position: absolute;  height: 32px; width:32px; background-color:black; background-image: url(\"images/onigiri.png\");left: "
+								+ (i * 32) + "px; top: " + (j * 32) + "px;'></div>";
+							document.getElementById("blocks").innerHTML = content;
+							foodTop.push(j * 32);
+							foodLeft.push(i * 32);
+							foodDivId.push("block" + divCounter);
+							food++;
+							divCounter++;
+						}
+					}
+					else {
+						content += "<div id='block" + (divCounter) + "' style='position: absolute;  height: 32px; width:32px; background-color:rgb(61, 58, 54); left: "
+							+ (i * 32) + "px; top: " + (j * 32) + "px;'></div>";
+						blockTop.push(j * 32);
+						blockLeft.push(i * 32);
+						document.getElementById("blocks").innerHTML = content;
+						divCounter++;
+					}
+				}
+			}
+		}
+
 
 		document.onkeydown = function (e) {
 			console.log(e);
@@ -21,40 +88,126 @@
 				walkValue = 1;
 			}
 			if (e.keyCode == 37) {
-				// Left
-				if (leftValue >= 0) {
-					leftValue = leftValue - 5;
-					document.getElementById("character").style.left = leftValue + "px";
-					document.getElementById("character").style.backgroundImage = "url('img/left" + walkValue + ".png')";
+				//Left
+				if (leftValue > 32) {
+					leftValue -= 32;
+					if (!doesCrashX(leftValue, topValue)) {
+						runsIntoFoodX(leftValue, topValue);
+						document.getElementById("character").style.left = leftValue + "px";
+					}
+					else {
+						leftValue += 32;
+					}
 				}
 			}
 			else if (e.keyCode == 39) {
 				// Right
-				if (leftValue <= 500) {
-					leftValue = leftValue + 5;
-					document.getElementById("character").style.left = leftValue + "px";
-					document.getElementById("character").style.backgroundImage = "url('img/right" + walkValue + ".png')";
+				if (leftValue <= 468) {
+					leftValue += 32;
+					if (!doesCrashX(leftValue, topValue)) {
+						runsIntoFoodX(leftValue, topValue);
+						document.getElementById("character").style.left = leftValue + "px";
+					}
+					else {
+						leftValue -= 32;
+					}
 				}
 			}
 			else if (e.keyCode == 38) {
 				// Top
-				if (topValue >= 0) {
-					topValue = topValue - 5;
-					document.getElementById("character").style.top = topValue + "px";
-					document.getElementById("character").style.backgroundImage = "url('img/top" + walkValue + ".png')";
+				if (topValue > 32) {
+					topValue = topValue - 32;
+					if (!doesCrashY(leftValue, topValue)) {
+						runsIntoFoodY(leftValue, topValue);
+						document.getElementById("character").style.top = topValue + "px";
+					}
+					else {
+						topValue += 32;
+					}
 				}
 			}
 			else if (e.keyCode == 40) {
 				// Bottom
-				if (topValue <= 500) {
-					topValue = topValue + 5;
-					document.getElementById("character").style.top = topValue + "px";
-					document.getElementById("character").style.backgroundImage = "url('img/down" + walkValue + ".png')";
+				if (topValue <= 468) {
+					topValue = topValue + 32;
+					if (!doesCrashY(leftValue, topValue)) {
+						runsIntoFoodY(leftValue, topValue);
+						document.getElementById("character").style.top = topValue + "px";
+					}
+					else {
+						topValue -= 32;
+					}
 				}
 			}
-			
 		}
+
+		function doesCrashX(X, Y) {
+			for (var i = 0; i < blockTop.length; i++) {
+				if (Y === blockTop[i]) {
+					if (X === blockLeft[i]) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		function doesCrashY(X, Y) {
+			for (var i = 0; i < blockTop.length; i++) {
+				if (X === blockLeft[i]) {
+					if (Y === blockTop[i]) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		function runsIntoFoodX(X, Y) {
+			for (var i = 0; i < foodLeft.length; i++) {
+				if (Y === foodTop[i]) {
+					if (X === foodLeft[i]) {
+						document.getElementById(foodDivId[i]).style.backgroundImage = null;
+						food--;
+						score++;
+						delete foodLeft[i];
+						delete foodTop[i];
+						delete foodDivId[i];
+						document.getElementById("score").textContent = score;
+					}
+				}
+			}
+		}
+
+		function runsIntoFoodY(X, Y) {
+			for (var i = 0; i < foodLeft.length; i++) {
+				if (X === foodLeft[i]) {
+					if (Y === foodTop[i]) {
+						document.getElementById(foodDivId[i]).style.backgroundImage = null;
+						food--;
+						score++;
+						delete foodLeft[i];
+						delete foodTop[i];
+						delete foodDivId[i];
+						document.getElementById("score").textContent = score;
+					}
+				}
+			}
+		}
+
+		// function drawGhosts(){
+		// 	document.getElementById("block208").style.backgroundImage = 'url("/images/red.gif")';
+		// 	document.getElementById("block208").style.zIndex = 999;
+		// }
+
+		// function gameLoop() {
+		// 	setTimeout(gameLoop, 50);
+		//  	// moveGhosts();
+		// }
+
 	</script>
+	<div id="score" style="padding-left: 32px; position:absolute; display: block; height:32px; width:64px;">0
+	</div>
 </body>
 
 </html>
