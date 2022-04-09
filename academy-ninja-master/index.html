@@ -6,8 +6,11 @@
 		<div id='character'
 			style='position:absolute; top:64; left:64; z-index: 9999; background-image: url("images/ninja.gif"); width:32px; height:32px;'>
 		</div>
-		<div id='ghost'
+		<div id='ghost0'
 			style='position:absolute; top:448; left:448; z-index: 9999; background-image: url("images/pumpky.gif"); width:32px; height:32px;'>
+		</div>
+		<div id='ghost1'
+			style='position:absolute; top:448; left:64; z-index: 9999; background-image: url("images/red.gif"); width:32px; height:32px;'>
 		</div>
 		<div id='endresult'
 			style='position:absolute; left:82; top: 214;  display:block;background-image: url("images/splendid.png"); width:382px; height:57px;'>
@@ -19,7 +22,6 @@
 	<script type="text/javascript">
 		var leftValue = 64;
 		var topValue = 64;
-		var walkValue = 0;
 		var divCounter = 0;
 		var lives = 3;
 
@@ -29,12 +31,16 @@
 		var foodLeft = [];
 		var foodTop = [];
 		var foodDivId = [];
+
 		var food = foodLeft.length;
 		var score = 0;
 		var rand2 = Math.floor(Math.random() * 3);
 
-		var ghostTop = 448;
-		var ghostLeft = 448;
+		var ghostTop = [448, 448];
+		var ghostLeft = [448, 64];
+
+		var topDistance = [];
+		var leftDistance = [];
 
 		drawMap();
 		gameLoop();
@@ -90,135 +96,96 @@
 
 		document.onkeydown = function (e) {
 			console.log(e);
-
-			if (walkValue == 1) {
-				walkValue = 2;
-			}
-			else if (walkValue == 2) {
-				walkValue = 1;
-			}
-			if (e.keyCode == 37) {
-				//Left
-				if (leftValue > 32) {
-					leftValue -= 32;
-					if (!doesCrashX(leftValue, topValue)) {
-						runsIntoFoodX(leftValue, topValue);
-						runsIntoGhostX(leftValue, topValue);
-						document.getElementById("character").style.left = leftValue + "px";
-					}
-					else {
-						leftValue += 32;
-					}
-				}
-			}
-			else if (e.keyCode == 39) {
-				// Right
-				if (leftValue <= 468) {
-					leftValue += 32;
-					if (!doesCrashX(leftValue, topValue)) {
-						runsIntoFoodX(leftValue, topValue);
-						runsIntoGhostX(leftValue, topValue);
-						document.getElementById("character").style.left = leftValue + "px";
-					}
-					else {
+			if (lives !== 0 && score !== scoreToReach) {
+				if (e.keyCode == 37) {
+					//Left
+					if (leftValue > 32) {
 						leftValue -= 32;
+						if (!doesCrash(leftValue, topValue)) {
+							runsIntoGhosts(leftValue, topValue);
+							runsIntoFood(leftValue, topValue);
+							document.getElementById("character").style.left = leftValue + "px";
+						}
+						else {
+							leftValue += 32;
+						}
 					}
 				}
-			}
-			else if (e.keyCode == 38) {
-				// Top
-				if (topValue > 32) {
-					topValue = topValue - 32;
-					if (!doesCrashY(leftValue, topValue)) {
-						runsIntoFoodY(leftValue, topValue);
-						runsIntoGhostY(leftValue, topValue);
-						document.getElementById("character").style.top = topValue + "px";
-					}
-					else {
-						topValue += 32;
-					}
-				}
-			}
-			else if (e.keyCode == 40) {
-				// Bottom
-				if (topValue <= 468) {
-					topValue = topValue + 32;
-					if (!doesCrashY(leftValue, topValue)) {
-						runsIntoFoodY(leftValue, topValue);
-						runsIntoGhostY(leftValue, topValue);
-						document.getElementById("character").style.top = topValue + "px";
-					}
-					else {
-						topValue -= 32;
+				else if (e.keyCode == 39) {
+					// Right
+					if (leftValue <= 468) {
+						leftValue += 32;
+						if (!doesCrash(leftValue, topValue)) {
+							runsIntoGhosts(leftValue, topValue);
+							runsIntoFood(leftValue, topValue);
+							document.getElementById("character").style.left = leftValue + "px";
+						}
+						else {
+							leftValue -= 32;
+						}
 					}
 				}
-			}
-		}
-
-		function doesCrashX(X, Y) {
-			for (var i = 0; i < blockTop.length; i++) {
-				if (Y === blockTop[i]) {
-					if (X === blockLeft[i]) {
-						return true;
+				else if (e.keyCode == 38) {
+					// Top
+					if (topValue > 32) {
+						topValue = topValue - 32;
+						if (!doesCrash(leftValue, topValue)) {
+							runsIntoGhosts(leftValue, topValue);
+							runsIntoFood(leftValue, topValue);
+							document.getElementById("character").style.top = topValue + "px";
+						}
+						else {
+							topValue += 32;
+						}
 					}
 				}
-			}
-			return false;
-		}
-
-		function doesCrashY(X, Y) {
-			for (var i = 0; i < blockTop.length; i++) {
-				if (X === blockLeft[i]) {
-					if (Y === blockTop[i]) {
-						return true;
-					}
-				}
-			}
-			return false;
-		}
-
-		function runsIntoFoodX(X, Y) {
-			for (var i = 0; i < foodLeft.length; i++) {
-				if (Y === foodTop[i]) {
-					if (X === foodLeft[i]) {
-						document.getElementById(foodDivId[i]).style.backgroundImage = null;
-						food--;
-						score++;
-						delete foodLeft[i];
-						delete foodTop[i];
-						delete foodDivId[i];
-						document.getElementById("score").textContent = "Score: " + score;
-						console.log(scoreToReach);
-						if (score === scoreToReach) {
-							document.getElementById("endresult").style.zIndex = "999999";
+				else if (e.keyCode == 40) {
+					// Bottom
+					if (topValue <= 468) {
+						topValue = topValue + 32;
+						if (!doesCrash(leftValue, topValue)) {
+							runsIntoGhosts(leftValue, topValue);
+							runsIntoFood(leftValue, topValue);
+							document.getElementById("character").style.top = topValue + "px";
+						}
+						else {
+							topValue -= 32;
 						}
 					}
 				}
 			}
 		}
 
-		function runsIntoFoodY(X, Y) {
+		function doesCrash(X, Y) {
+			for (var i = 0; i < blockTop.length; i++) {
+				if (Y === blockTop[i] && X === blockLeft[i]) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		function runsIntoFood(X, Y) {
 			for (var i = 0; i < foodLeft.length; i++) {
-				if (X === foodLeft[i]) {
-					if (Y === foodTop[i]) {
-						document.getElementById(foodDivId[i]).style.backgroundImage = null;
-						food--;
-						score++;
-						delete foodLeft[i];
-						delete foodTop[i];
-						delete foodDivId[i];
-						document.getElementById("score").textContent = "Score: " + score;
-						if (score === scoreToReach) {
-							document.getElementById("endresult").style.zIndex = "999999";
-						}
+				if (Y === foodTop[i] && X === foodLeft[i]) {
+					document.getElementById(foodDivId[i]).style.backgroundImage = null;
+					food--;
+					score++;
+					delete foodLeft[i];
+					delete foodTop[i];
+					delete foodDivId[i];
+					document.getElementById("score").textContent = "Score: " + score;
+					console.log(scoreToReach);
+					if (score === scoreToReach) {
+						document.getElementById("endresult").style.zIndex = "999999";
 					}
 				}
 			}
 		}
 
-		function runsIntoGhostX(X, Y) {
-			if (Y === ghostTop) {
-				if (X === ghostLeft) {
+		function runsIntoGhosts(X, Y) {
+			for (var i = 0; i < ghostLeft.length; i++) {
+				if ((Y === ghostTop[i] && X === ghostLeft[i])) {
 					lives--;
 					document.getElementById("lives").textContent = "Lives: " + lives;
 					if (lives === 0) {
@@ -231,33 +198,15 @@
 					leftValue = 64;
 					document.getElementById("character").style.top = topValue;
 					document.getElementById("character").style.left = leftValue;
-					ghostLeft = 448;
-					ghostTop = 448;
-					document.getElementById("ghost").style.top = ghostTop;
-					document.getElementById("ghost").style.left = ghostLeft;
-				}
-			}
-		}
-
-		function runsIntoGhostY(X, Y) {
-			if (X === ghostLeft) {
-				if (Y === ghostTop) {
-					lives--;
-					document.getElementById("lives").textContent = "Lives: " + lives;
-					if (lives === 0) {
-						document.getElementById("endresult").style.left = 48;
-						document.getElementById("endresult").style.width = 442;
-						document.getElementById("endresult").style.backgroundImage = 'url("images/gameover.png")';
-						document.getElementById("endresult").style.zIndex = "999999";
+					if (i == 0) {
+						ghostLeft[i] = 448;
 					}
-					topValue = 64;
-					leftValue = 64;
-					document.getElementById("character").style.top = topValue;
-					document.getElementById("character").style.left = leftValue;
-					ghostLeft = 448;
-					ghostTop = 448;
-					document.getElementById("ghost").style.top = ghostTop;
-					document.getElementById("ghost").style.left = ghostLeft;
+					else {
+						ghostLeft[i] = 64;
+					}
+					ghostTop[i] = 448;
+					document.getElementById("ghost" + i).style.top = ghostTop[i];
+					document.getElementById("ghost" + i).style.left = ghostLeft[i];
 				}
 			}
 		}
@@ -271,40 +220,43 @@
 		//        y
 		//
 		function moveGhosts() {
-			topDistance = topValue - ghostTop;
-			leftDistance = leftValue - ghostLeft;
-			//RIGHT UP
-			if (topDistance <= 0 && leftDistance <= 0) {
-				ghostTop -= 2;
-				ghostLeft -= 2;
-				document.getElementById("ghost").style.top = ghostTop;
-				document.getElementById("ghost").style.left = ghostLeft;
-			}//LEFT UP
-			else if (topDistance <= 0 && leftDistance >= 0) {
-				ghostTop -= 2;
-				ghostLeft += 2;
-				document.getElementById("ghost").style.top = ghostTop;
-				document.getElementById("ghost").style.left = ghostLeft;
-			}//RIGHT DOWN
-			else if (topDistance >= 0 && leftDistance <= 0) {
-				ghostTop += 2;
-				ghostLeft -= 2;
-				document.getElementById("ghost").style.top = ghostTop;
-				document.getElementById("ghost").style.left = ghostLeft;
-			}
-			else {//LEFT DOWN
-				ghostTop += 2;
-				ghostLeft += 2;
-				document.getElementById("ghost").style.top = ghostTop;
-				document.getElementById("ghost").style.left = ghostLeft;
+			for (var i = 0; i < ghostLeft.length; i++) {
+				topDistance[i] = topValue - ghostTop[i];
+				leftDistance[i] = leftValue - ghostLeft[i];
+				//RIGHT UP
+				if (topDistance[i] <= 0 && leftDistance[i] <= 0) {
+					ghostTop[i] -= 2;
+					ghostLeft[i] -= 2;
+					document.getElementById("ghost" + i).style.top = ghostTop[i];
+					document.getElementById("ghost" + i).style.left = ghostLeft[i];
+				}//LEFT UP
+				else if (topDistance[i] <= 0 && leftDistance[i] >= 0) {
+					ghostTop[i] -= 2;
+					ghostLeft[i] += 2;
+					document.getElementById("ghost" + i).style.top = ghostTop[i];
+					document.getElementById("ghost" + i).style.left = ghostLeft[i];
+				}//RIGHT DOWN
+				else if (topDistance[i] >= 0 && leftDistance[i] <= 0) {
+					ghostTop[i] += 2;
+					ghostLeft[i] -= 2;
+					document.getElementById("ghost" + i).style.top = ghostTop[i];
+					document.getElementById("ghost" + i).style.left = ghostLeft[i];
+				}
+				else {//LEFT DOWN
+					ghostTop[i] += 2;
+					ghostLeft[i] += 2;
+					document.getElementById("ghost" + i).style.top = ghostTop[i];
+					document.getElementById("ghost" + i).style.left = ghostLeft[i];
+				}
 			}
 		}
 
 		function gameLoop() {
 			setTimeout(gameLoop, 50);
-			moveGhosts();
-			runsIntoGhostX(leftValue, topValue);
-			runsIntoGhostY(leftValue, topValue);
+			if (lives !== 0 && score !== scoreToReach) {
+				moveGhosts();
+			}
+			runsIntoGhosts(leftValue, topValue);
 		}
 
 	</script>
