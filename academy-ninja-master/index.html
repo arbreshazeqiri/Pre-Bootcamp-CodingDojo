@@ -274,19 +274,19 @@
 			topDistance = topValue - ghostTop;
 			leftDistance = leftValue - ghostLeft;
 			//RIGHT UP
-			if (topDistance < 0 && leftDistance < 0) {
+			if (topDistance <= 0 && leftDistance <= 0) {
 				ghostTop -= 2;
 				ghostLeft -= 2;
 				document.getElementById("ghost").style.top = ghostTop;
 				document.getElementById("ghost").style.left = ghostLeft;
 			}//LEFT UP
-			else if (topDistance < 0 && leftDistance > 0) {
+			else if (topDistance <= 0 && leftDistance >= 0) {
 				ghostTop -= 2;
 				ghostLeft += 2;
 				document.getElementById("ghost").style.top = ghostTop;
 				document.getElementById("ghost").style.left = ghostLeft;
 			}//RIGHT DOWN
-			else if (topDistance > 0 && leftDistance < 0) {
+			else if (topDistance >= 0 && leftDistance <= 0) {
 				ghostTop += 2;
 				ghostLeft -= 2;
 				document.getElementById("ghost").style.top = ghostTop;
@@ -303,6 +303,8 @@
 		function gameLoop() {
 			setTimeout(gameLoop, 50);
 			moveGhosts();
+			runsIntoGhostX(leftValue, topValue);
+			runsIntoGhostY(leftValue, topValue);
 		}
 
 	</script>
