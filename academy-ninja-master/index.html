@@ -4,15 +4,21 @@
 	<div id='background'
 		style='position:absolute; display:block; background-color:rgb(61, 58, 54); width:542px; height:542px;'>
 		<div id='character'
-			style='position:absolute; top:32; left:32; z-index: 9999; background-image: url("images/ninja.gif"); width:32px; height:32px;'>
+			style='position:absolute; top:64; left:64; z-index: 9999; background-image: url("images/ninja.gif"); width:32px; height:32px;'>
+		</div>
+		<div id='ghost'
+		style='position:absolute; top:446; left:446; z-index: 9999; background-image: url("images/red.gif"); width:32px; height:32px;'>
+	</div>
+		<div id='splendid'
+			style='position:absolute; left:82; top: 214;  display:block;background-image: url("images/splendid.png"); width:382px; height:57px;'>
 		</div>
 		<div id='blocks' style='position:absolute;  width:542px; height:542px;'>
 		</div>
 	</div>
 
 	<script type="text/javascript">
-		var leftValue = 32;
-		var topValue = 32;
+		var leftValue = 64;
+		var topValue = 64;
 		var walkValue = 0;
 		var divCounter = 0;
 		var lives = 3;
@@ -28,7 +34,7 @@
 		var rand2 = Math.floor(Math.random() * 3);
 
 		drawMap();
-		drawGhosts();
+		var scoreToReach = foodLeft.length;
 
 		function drawMap() {
 			var content = "";
@@ -173,7 +179,11 @@
 						delete foodLeft[i];
 						delete foodTop[i];
 						delete foodDivId[i];
-						document.getElementById("score").textContent = score;
+						document.getElementById("score").textContent = "Score: " + score;
+						console.log(scoreToReach);
+						if(score === scoreToReach){
+							document.getElementById("splendid").style.zIndex = "999999";
+						}
 					}
 				}
 			}
@@ -189,16 +199,16 @@
 						delete foodLeft[i];
 						delete foodTop[i];
 						delete foodDivId[i];
-						document.getElementById("score").textContent = score;
+						document.getElementById("score").textContent = "Score: " + score;
+						if(score === scoreToReach){
+							document.getElementById("splendid").style.zIndex = "999999";
+						}
 					}
 				}
 			}
 		}
 
-		// function drawGhosts(){
-		// 	document.getElementById("block208").style.backgroundImage = 'url("/images/red.gif")';
-		// 	document.getElementById("block208").style.zIndex = 999;
-		// }
+
 
 		// function gameLoop() {
 		// 	setTimeout(gameLoop, 50);
@@ -206,7 +216,9 @@
 		// }
 
 	</script>
-	<div id="score" style="padding-left: 32px; position:absolute; display: block; height:32px; width:64px;">0
+	<div id="score" style=" position:absolute; display: block; font-family: monospace;color: white; font-size: 25px; left: 32; height:32px; width:500px;">Score: 0
+	</div>
+	<div id="lives" style=" position:absolute; display: block; font-family: monospace;color: rgb(254, 3, 3); left:400; font-size: 25px; height:32px; width:500px;">Lives: 3
 	</div>
 </body>
 
