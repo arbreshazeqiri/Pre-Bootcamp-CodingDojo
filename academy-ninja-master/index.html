@@ -7,9 +7,9 @@
 			style='position:absolute; top:64; left:64; z-index: 9999; background-image: url("images/ninja.gif"); width:32px; height:32px;'>
 		</div>
 		<div id='ghost'
-		style='position:absolute; top:446; left:446; z-index: 9999; background-image: url("images/red.gif"); width:32px; height:32px;'>
-	</div>
-		<div id='splendid'
+			style='position:absolute; top:448; left:448; z-index: 9999; background-image: url("images/pumpky.gif"); width:32px; height:32px;'>
+		</div>
+		<div id='endresult'
 			style='position:absolute; left:82; top: 214;  display:block;background-image: url("images/splendid.png"); width:382px; height:57px;'>
 		</div>
 		<div id='blocks' style='position:absolute;  width:542px; height:542px;'>
@@ -33,7 +33,11 @@
 		var score = 0;
 		var rand2 = Math.floor(Math.random() * 3);
 
+		var ghostTop = 448;
+		var ghostLeft = 448;
+
 		drawMap();
+		gameLoop();
 		var scoreToReach = foodLeft.length;
 
 		function drawMap() {
@@ -99,6 +103,7 @@
 					leftValue -= 32;
 					if (!doesCrashX(leftValue, topValue)) {
 						runsIntoFoodX(leftValue, topValue);
+						runsIntoGhostX(leftValue, topValue);
 						document.getElementById("character").style.left = leftValue + "px";
 					}
 					else {
@@ -112,6 +117,7 @@
 					leftValue += 32;
 					if (!doesCrashX(leftValue, topValue)) {
 						runsIntoFoodX(leftValue, topValue);
+						runsIntoGhostX(leftValue, topValue);
 						document.getElementById("character").style.left = leftValue + "px";
 					}
 					else {
@@ -125,6 +131,7 @@
 					topValue = topValue - 32;
 					if (!doesCrashY(leftValue, topValue)) {
 						runsIntoFoodY(leftValue, topValue);
+						runsIntoGhostY(leftValue, topValue);
 						document.getElementById("character").style.top = topValue + "px";
 					}
 					else {
@@ -138,6 +145,7 @@
 					topValue = topValue + 32;
 					if (!doesCrashY(leftValue, topValue)) {
 						runsIntoFoodY(leftValue, topValue);
+						runsIntoGhostY(leftValue, topValue);
 						document.getElementById("character").style.top = topValue + "px";
 					}
 					else {
@@ -181,8 +189,8 @@
 						delete foodDivId[i];
 						document.getElementById("score").textContent = "Score: " + score;
 						console.log(scoreToReach);
-						if(score === scoreToReach){
-							document.getElementById("splendid").style.zIndex = "999999";
+						if (score === scoreToReach) {
+							document.getElementById("endresult").style.zIndex = "999999";
 						}
 					}
 				}
@@ -200,25 +208,111 @@
 						delete foodTop[i];
 						delete foodDivId[i];
 						document.getElementById("score").textContent = "Score: " + score;
-						if(score === scoreToReach){
-							document.getElementById("splendid").style.zIndex = "999999";
+						if (score === scoreToReach) {
+							document.getElementById("endresult").style.zIndex = "999999";
 						}
 					}
 				}
 			}
 		}
 
+		function runsIntoGhostX(X, Y) {
+			if (Y === ghostTop) {
+				if (X === ghostLeft) {
+					lives--;
+					document.getElementById("lives").textContent = "Lives: " + lives;
+					if (lives === 0) {
+						document.getElementById("endresult").style.left = 48;
+						document.getElementById("endresult").style.width = 442;
+						document.getElementById("endresult").style.backgroundImage = 'url("images/gameover.png")';
+						document.getElementById("endresult").style.zIndex = "999999";
+					}
+					topValue = 64;
+					leftValue = 64;
+					document.getElementById("character").style.top = topValue;
+					document.getElementById("character").style.left = leftValue;
+					ghostLeft = 448;
+					ghostTop = 448;
+					document.getElementById("ghost").style.top = ghostTop;
+					document.getElementById("ghost").style.left = ghostLeft;
+				}
+			}
+		}
 
+		function runsIntoGhostY(X, Y) {
+			if (X === ghostLeft) {
+				if (Y === ghostTop) {
+					lives--;
+					document.getElementById("lives").textContent = "Lives: " + lives;
+					if (lives === 0) {
+						document.getElementById("endresult").style.left = 48;
+						document.getElementById("endresult").style.width = 442;
+						document.getElementById("endresult").style.backgroundImage = 'url("images/gameover.png")';
+						document.getElementById("endresult").style.zIndex = "999999";
+					}
+					topValue = 64;
+					leftValue = 64;
+					document.getElementById("character").style.top = topValue;
+					document.getElementById("character").style.left = leftValue;
+					ghostLeft = 448;
+					ghostTop = 448;
+					document.getElementById("ghost").style.top = ghostTop;
+					document.getElementById("ghost").style.left = ghostLeft;
+				}
+			}
+		}
+		//
+		// calculate top distance between ninjaman and ghost -> add 32 to ghost top till it reaches the distance
+		// calculate left distance between ninjaman and ghost -> add 32 to ghost left till it reaches the distance
+		//            x
+		//           /
+		//          /
+		//         /
+		//        y
+		//
+		function moveGhosts() {
+			topDistance = topValue - ghostTop;
+			leftDistance = leftValue - ghostLeft;
+			//RIGHT UP
+			if (topDistance < 0 && leftDistance < 0) {
+				ghostTop -= 2;
+				ghostLeft -= 2;
+				document.getElementById("ghost").style.top = ghostTop;
+				document.getElementById("ghost").style.left = ghostLeft;
+			}//LEFT UP
+			else if (topDistance < 0 && leftDistance > 0) {
+				ghostTop -= 2;
+				ghostLeft += 2;
+				document.getElementById("ghost").style.top = ghostTop;
+				document.getElementById("ghost").style.left = ghostLeft;
+			}//RIGHT DOWN
+			else if (topDistance > 0 && leftDistance < 0) {
+				ghostTop += 2;
+				ghostLeft -= 2;
+				document.getElementById("ghost").style.top = ghostTop;
+				document.getElementById("ghost").style.left = ghostLeft;
+			}
+			else {//LEFT DOWN
+				ghostTop += 2;
+				ghostLeft += 2;
+				document.getElementById("ghost").style.top = ghostTop;
+				document.getElementById("ghost").style.left = ghostLeft;
+			}
+		}
 
-		// function gameLoop() {
-		// 	setTimeout(gameLoop, 50);
-		//  	// moveGhosts();
-		// }
+		function gameLoop() {
+			setTimeout(gameLoop, 50);
+			moveGhosts();
+		}
 
 	</script>
-	<div id="score" style=" position:absolute; display: block; font-family: monospace;color: white; font-size: 25px; left: 32; height:32px; width:500px;">Score: 0
+	<div id="score"
+		style=" position:absolute; display: block; font-family: monospace;color: white; font-size: 25px; left: 32; height:32px; width:500px;">
+		Score: 0
 	</div>
-	<div id="lives" style=" position:absolute; display: block; font-family: monospace;color: rgb(254, 3, 3); left:400; font-size: 25px; height:32px; width:500px;">Lives: 3
+	<div id="lives"
+		style=" position:absolute; display: block; font-family: monospace;color: rgb(254, 3, 3); left:400; font-size: 25px; height:32px; width:500px;">
+		Lives: 3
 	</div>
 </body>
 
